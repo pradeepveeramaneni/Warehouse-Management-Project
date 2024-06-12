@@ -1,0 +1,10 @@
+### POST - login user (using email/password)
+POST {{baseUrl}}/api/Auth/Login
+Content-Type: application/json
+
+{
+"email": "{{organizerEmail}}",
+"password": "{{defaultPassword}}",
+"role": 2
+}
+

@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EFMigrationsHistory {
+  MigrationId    String @id(map: "PK___EFMigrationsHistory") @db.VarChar(150)
+  ProductVersion String @db.VarChar(32)
+
+  @@map("__EFMigrationsHistory")
+}
+
+model user {
+  Id        String   @id(map: "PK_user") @db.Uuid
+  Name      String   @db.VarChar(100)
+  Email     String   @unique(map: "IX_user_Email")
+  Password  String   @db.VarChar(100)
+  Role      Int
+  IsActive  Boolean
+  CreatedAt DateTime @db.Timestamptz(6)
+  UpdatedAt DateTime @db.Timestamptz(6)
+
+  Products        Product[]
+  CheckOutRequest CheckOutRequest[]
+
+  otp String?
+}
+
+enum ProductStatus {
+  NOT_CHECKED_IN
+  PENDING
+  CHECKED_IN
+  CHECKED_OUT
+  RETURNED
+}
+
+enum Condition {
+  NEW
+  USED
+}
+
+model Product {
+  Id         String        @id(map: "PK_Product") @default(uuid()) @db.Uuid
+  Name       String        @db.VarChar(200)
+  UPC        String        @unique(map: "IX_Product_UPC")
+  Quantity   Int
+  TrackingId String?
+  CreatedAt  DateTime      @default(now()) @db.Timestamptz(6)
+  UpdatedAt  DateTime      @updatedAt @db.Timestamptz(6)
+  Status     ProductStatus @default(NOT_CHECKED_IN)
+  Memo       String?
+  Condition  Condition
+  Return     Boolean       @default(false)
+
+  CheckedInTime DateTime @db.Timestamptz(6)
+
+  CheckOutRequests CheckOutRequest[]
+
+  User        user      @relation(fields: [UserId], references: [Id])
+  UserId      String    @db.Uuid
+  Warehouse   Warehouse @relation(fields: [WarehouseId], references: [Id])
+  WarehouseId String    @db.Uuid
+}
+
+enum CheckOutStatus {
+  PENDING
+  CHECKED_OUT
+  CANCELLED
+}
+
+model CheckOutRequest {
+  Id        String         @id(map: "PK_CheckOutRequest") @default(uuid()) @db.Uuid
+  CreatedAt DateTime       @default(now()) @db.Timestamptz(6)
+  UpdatedAt DateTime       @updatedAt @db.Timestamptz(6)
+  Status    CheckOutStatus @default(PENDING)
+  Quantity  Int
+
+  TrackingId       String?
+  CustomerName     String?
+  CustomerPhone    String?
+  CustomerAddress1 String?
+  CustomerAddress2 String?
+  CustomerCity     String?
+  CustomerState    String?
+  CustomerZip      String?
+
+  Files File[]
+
+  Product   Product @relation(fields: [ProductId], references: [Id])
+  ProductId String  @db.Uuid
+
+  user   user   @relation(fields: [userId], references: [Id])
+  userId String @db.Uuid
+}
+
+model File {
+  Id          String @id(map: "PK_File") @default(uuid()) @db.Uuid
+  Name        String @db.VarChar(200)
+  ContentType String @db.VarChar(200)
+  Blob        Bytes
+
+  CreatedAt DateTime @default(now()) @db.Timestamptz(6)
+  UpdatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  CheckOutRequest   CheckOutRequest @relation(fields: [CheckOutRequestId], references: [Id], onDelete: Cascade, onUpdate: Cascade)
+  CheckOutRequestId String          @db.Uuid
+}
+
+model Warehouse {
+  Id        String   @id(map: "PK_Warehouse") @default(uuid()) @db.Uuid
+  Name      String   @db.VarChar(200)
+  Address   String   @db.VarChar(200)
+  CreatedAt DateTime @default(now()) @db.Timestamptz(6)
+  UpdatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  Products Product[]
+}

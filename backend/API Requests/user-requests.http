@@ -1,0 +1,34 @@
+### GET - get all users
+GET {{baseUrl}}/api/User/GetAll
+Accept: application/json
+
+### GET - get user by id
+GET {{baseUrl}}/api/User/{{organizerId}}
+Accept: application/json
+
+### POST - create user (Change the email to a unique one if you get an error)
+POST {{baseUrl}}/api/User
+Content-Type: application/json
+
+{
+  "name": "Student",
+  "email": "newstudent@app.com",
+  "password": "{{defaultPassword}}",
+  "role": 1
+}
+
+### PUT - update user
+PUT {{baseUrl}}/api/User/{{organizerId}}
+Content-Type: application/json
+
+{
+  "name": "Organizer",
+  "email": "{{organizerEmail}}",
+  "password": "{{defaultPassword}}",
+  "isActive": true,
+  "role": 2
+}
+
+### PUT - toggle user status
+PUT {{baseUrl}}/api/User/ToggleUserStatus/{{organizerId}}
+Content-Type: application/json

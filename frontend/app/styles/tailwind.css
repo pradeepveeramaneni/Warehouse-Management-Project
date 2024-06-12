@@ -1,0 +1,11 @@
+@layer tailwind {
+	@tailwind base;
+}
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--font-cal: Cal Sans, Cal Sans Fallback;
+	}
+}
